@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://10.0.2.2:8000/"
-    const val WEBSOCKET_URL = "ws://10.0.2.2:8000/ws"
+    private const val BASE_URL = "https://livepoll.upprojects.online/"
+    const val WEBSOCKET_URL = "wss://livepoll.upprojects.online/ws"
 
     @Provides
     @Singleton

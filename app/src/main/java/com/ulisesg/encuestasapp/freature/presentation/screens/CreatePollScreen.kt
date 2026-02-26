@@ -2,12 +2,12 @@ package com.ulisesg.encuestasapp.freature.presentation.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,7 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ulisesg.encuestasapp.freature.presentation.viewmodels.EncuestasViewModel
@@ -43,60 +45,122 @@ fun CreatePollScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Crear Encuesta") },
+                title = { 
+                    Text(
+                        "Crear Encuesta",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp)
+                .padding(20.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             if (createdPollId == null) {
-                OutlinedTextField(
-                    value = question,
-                    onValueChange = { question = it },
-                    label = { Text("Pregunta") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // Sección de la Pregunta
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "¿Cuál es tu pregunta?",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
+                        )
+                        OutlinedTextField(
+                            value = question,
+                            onValueChange = { question = it },
+                            placeholder = { Text("Ej: ¿Cuál es tu color favorito?") },
+                            modifier = Modifier.fillMaxWidth(),
+                            leadingIcon = { 
+                                Icon(
+                                    Icons.Default.QuestionAnswer, 
+                                    contentDescription = null, 
+                                    tint = MaterialTheme.colorScheme.primary
+                                ) 
+                            },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                            )
+                        )
+                    }
+                }
 
-                Text("Opciones", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Opciones de respuesta",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(start = 4.dp, top = 8.dp)
+                )
 
                 options.forEachIndexed { index, option ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         OutlinedTextField(
                             value = option,
                             onValueChange = { options[index] = it },
-                            label = { Text("Opción ${index + 1}") },
-                            modifier = Modifier.weight(1f)
+                            placeholder = { Text("Opción ${index + 1}") },
+                            modifier = Modifier.weight(1f),
+                            leadingIcon = { 
+                                Icon(
+                                    Icons.AutoMirrored.Filled.List,
+                                    contentDescription = null, 
+                                    tint = MaterialTheme.colorScheme.secondary 
+                                ) 
+                            },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                            )
                         )
                         if (options.size > 2) {
-                            IconButton(onClick = { options.removeAt(index) }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                            IconButton(
+                                onClick = { options.removeAt(index) },
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.error
+                                )
+                            ) {
+                                Icon(Icons.Default.DeleteOutline, contentDescription = "Eliminar")
                             }
                         }
                     }
                 }
 
-                Button(
+                TextButton(
                     onClick = { options.add("") },
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    colors = ButtonDefaults.textButtonColors()
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary)
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(Icons.Default.AddCircleOutline, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Añadir Opción")
+                    Text("Añadir otra opción", style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold))
                 }
 
                 Spacer(Modifier.weight(1f))
@@ -107,10 +171,23 @@ fun CreatePollScreen(
                             viewModel.createPoll(question, options.toList())
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = question.isNotBlank() && options.size >= 2 && options.all { it.isNotBlank() }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    enabled = question.isNotBlank() && options.size >= 2 && options.all { it.isNotBlank() },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                    )
                 ) {
-                    Text("Generar Código de Encuesta")
+                    Text(
+                        "GENERAR ENCUESTA",
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            letterSpacing = 1.2.sp
+                        )
+                    )
                 }
             } else {
                 Column(
@@ -118,37 +195,59 @@ fun CreatePollScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
+                    Icon(
+                        Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(80.dp)
+                    )
+                    Spacer(Modifier.height(16.dp))
                     Text(
                         text = "¡Encuesta Creada!",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onBackground
                     )
-                    Spacer(Modifier.height(24.dp))
-                    Text(text = "Comparte este código con otros:")
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = "Comparte este código para que otros participen",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                    )
                     
                     Surface(
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = MaterialTheme.shapes.medium
+                        modifier = Modifier
+                            .padding(vertical = 32.dp)
+                            .fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(24.dp),
+                        border = androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f))
                     ) {
                         Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            modifier = Modifier.padding(24.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
                                 text = createdPollId!!,
-                                style = MaterialTheme.typography.displaySmall,
-                                fontWeight = FontWeight.Bold
+                                style = MaterialTheme.typography.displayMedium,
+                                fontWeight = FontWeight.Black,
+                                color = MaterialTheme.colorScheme.secondary,
+                                letterSpacing = 4.sp
                             )
+                            Spacer(Modifier.width(16.dp))
                             IconButton(onClick = {
                                 clipboardManager.setText(AnnotatedString(createdPollId!!))
                             }) {
-                                Icon(Icons.Default.ContentCopy, contentDescription = "Copiar")
+                                Icon(
+                                    Icons.Default.ContentCopy, 
+                                    contentDescription = "Copiar",
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
                             }
                         }
                     }
 
-                    Spacer(Modifier.height(32.dp))
+                    Spacer(Modifier.height(16.dp))
                     
                     Button(
                         onClick = {
@@ -157,18 +256,21 @@ fun CreatePollScreen(
                             options.addAll(listOf("", ""))
                             createdPollId = null
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().height(54.dp),
+                        shape = RoundedCornerShape(14.dp)
                     ) {
-                        Text("Crear otra encuesta")
+                        Text("Crear otra encuesta", fontWeight = FontWeight.Bold)
                     }
 
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     OutlinedButton(
                         onClick = { navController.popBackStack() },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().height(54.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("Ver mis encuestas")
+                        Text("Ver mis encuestas", fontWeight = FontWeight.Bold)
                     }
                 }
             }

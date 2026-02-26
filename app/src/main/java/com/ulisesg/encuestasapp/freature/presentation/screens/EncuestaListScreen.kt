@@ -126,7 +126,11 @@ fun SurveysListScreen(
                 is EncuestaUiState.Error -> {
                     ErrorMessage(
                         message = uiState.message,
-                        onRetry = { viewModel.loadEncuestas() }
+                        onRetry = { 
+                            navController.navigate("list") {
+                                popUpTo("list") { inclusive = true }
+                            }
+                        }
                     )
                 }
             }
