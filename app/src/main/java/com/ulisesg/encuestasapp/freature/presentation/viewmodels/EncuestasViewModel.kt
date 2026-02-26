@@ -23,7 +23,6 @@ class EncuestasViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<EncuestaUiState>(EncuestaUiState.Success(emptyList()))
     val uiState: StateFlow<EncuestaUiState> = _uiState
 
-    // Flujo para notificar cuando una encuesta ha sido creada exitosamente
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
@@ -31,7 +30,10 @@ class EncuestasViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = EncuestaUiState.Loading
             try {
-                val newPoll = createPollUseCase(question, options)
+                val cleanedQuestion = question.trim()
+                val cleanedOptions = options.map { it.trim() }.filter { it.isNotBlank() }
+                
+                val newPoll = createPollUseCase(cleanedQuestion, cleanedOptions)
                 addPollToList(newPoll)
                 _eventFlow.emit(UiEvent.PollCreated(newPoll))
             } catch (e: Exception) {
@@ -42,12 +44,15 @@ class EncuestasViewModel @Inject constructor(
 
     fun joinPoll(pollId: String) {
         viewModelScope.launch {
+            val trimmedId = pollId.trim() // Limpiamos el ID ingresado
+            if (trimmedId.isBlank()) return@launch
+            
             _uiState.value = EncuestaUiState.Loading
             try {
-                val poll = getPollUseCase(pollId)
+                val poll = getPollUseCase(trimmedId)
                 addPollToList(poll)
             } catch (e: Exception) {
-                _uiState.value = EncuestaUiState.Error("No se encontró la encuesta con ID: $pollId")
+                _uiState.value = EncuestaUiState.Error("No se encontró la encuesta con ID: $trimmedId")
             }
         }
     }
@@ -66,7 +71,8 @@ class EncuestasViewModel @Inject constructor(
     fun vote(pollId: String, optionIndex: Int) {
         viewModelScope.launch {
             try {
-                val updatedPoll = votePollUseCase(pollId, optionIndex)
+                // Aseguramos que el ID vaya limpio al votar
+                val updatedPoll = votePollUseCase(pollId.trim(), optionIndex)
                 val currentState = _uiState.value
                 if (currentState is EncuestaUiState.Success) {
                     val updatedList = currentState.encuestas.map {
@@ -80,9 +86,7 @@ class EncuestasViewModel @Inject constructor(
         }
     }
 
-    fun loadEncuestas() {
-        // Implementación vacía
-    }
+    fun loadEncuestas() {}
 
     sealed class UiEvent {
         data class PollCreated(val poll: Encuesta) : UiEvent()
