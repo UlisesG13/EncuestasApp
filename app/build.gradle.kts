@@ -100,6 +100,8 @@ dependencies {
     implementation(libs.hilt.navigation.compose)                    // Integración con Jetpack Compose
     ksp(libs.hilt.compiler)                                         // KSP
 
+    implementation(libs.okhttp.logging)                             // OkHttp Logging
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
